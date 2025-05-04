@@ -6,8 +6,8 @@ on:
       - main  # Trigger this action on pushes to the 'main' branch
   schedule:
     - cron: '0 0 * * 0'  # Run once a week on Sunday at midnight UTC
-  workflow_dispatch:
-  
+  workflow_dispatch:  # Allow manual triggering of the workflow from the GitHub UI
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
@@ -33,7 +33,9 @@ jobs:
             if [[ -f "$file" ]]; then
               echo "Deleting $file from the repository and Git LFS"
               git rm "$file"  # Remove the file from the repo
-              git lfs track --untrack "$file"  # Untrack the file from LFS
+              
+              # Untrack the file from LFS by removing its entry from .gitattributes
+              sed -i "/$file/d" .gitattributes
             else
               echo "$file does not exist in the repository."
             fi
