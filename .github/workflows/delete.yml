@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        # Ensure that the GitHub Actions workflow has access to the token with write permissions
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Git LFS
       run: |
@@ -59,7 +62,9 @@ jobs:
         git config --global user.email "github-actions@github.com"
         git add .  # Stage changes
         git commit -m "Delete files and update delete.actions" || echo "No changes to commit"
-        git push origin main  # Push the changes to the main branch
+        
+        # Use the GitHub token to authenticate and push changes
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
 
     - name: Prune Git LFS objects
       run: |
