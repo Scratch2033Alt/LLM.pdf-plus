@@ -1,0 +1,64 @@
+name: Clean up Git LFS and Delete Files
+
+on:
+  push:
+    branches:
+      - main  # Trigger this action on pushes to the 'main' branch
+  schedule:
+    - cron: '0 0 * * 0'  # Run once a week on Sunday at midnight UTC
+  workflow_dispatch:
+  
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Git LFS
+      run: |
+        git lfs install
+
+    - name: Read delete.actions file and delete files
+      run: |
+        # Check if delete.actions file exists
+        if [[ -f "delete.actions" ]]; then
+          # Create a temporary file to hold the remaining lines in delete.actions
+          temp_file=$(mktemp)
+          
+          # Read each line (file path) in delete.actions
+          while IFS= read -r file; do
+            # If the file exists in the repo, remove it
+            if [[ -f "$file" ]]; then
+              echo "Deleting $file from the repository and Git LFS"
+              git rm "$file"  # Remove the file from the repo
+              git lfs track --untrack "$file"  # Untrack the file from LFS
+            else
+              echo "$file does not exist in the repository."
+            fi
+            # Skip the deleted file and write the remaining lines to the temp file
+            if [[ -f "$file" ]]; then
+              continue
+            else
+              echo "$file" >> "$temp_file"
+            fi
+          done < "delete.actions"
+          
+          # Replace delete.actions with the updated file
+          mv "$temp_file" delete.actions
+        else
+          echo "No delete.actions file found."
+        fi
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add .  # Stage changes
+        git commit -m "Delete files and update delete.actions" || echo "No changes to commit"
+        git push origin main  # Push the changes to the main branch
+
+    - name: Prune Git LFS objects
+      run: |
+        git lfs prune  # Clean up any orphaned LFS objects
