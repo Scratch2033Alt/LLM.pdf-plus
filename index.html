@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>llm.pdf</title>
+		<meta name="description" content="Run LLMs inside a PDF file." />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<!-- Updated asset paths -->
+		<link rel="icon" href="https://evanzhoudev.github.io/llm.pdf/assets/favicon.ico" sizes="any" />
+		<link rel="icon" href="https://evanzhoudev.github.io/llm.pdf/assets/favicon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="https://evanzhoudev.github.io/llm.pdf/assets/apple-touch-icon.png" />
+		<link rel="manifest" href="https://evanzhoudev.github.io/llm.pdf/assets/site.webmanifest" />
+		<meta name="theme-color" content="#FFFFFF" />
+
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+		<script src="https://unpkg.com/feather-icons"></script>
+	</head>
+	<body
+		class="flex flex-col items-center justify-center w-screen min-h-screen p-4"
+	>
+		<div
+			class="w-full max-w-[600px] md:outline-1 md:outline-gray-400 min-h-[300px] h-min md:rounded-3xl flex flex-col items-center justify-between p-3 md:p-5 gap-6 md:gap-8 py-6 md:py-8"
+		>
+			<div class="flex flex-col items-center gap-6 md:gap-8 w-full">
+				<img src="https://evanzhoudev.github.io/llm.pdf/assets/logo.svg" class="w-40 md:w-52" />
+				<div class="flex flex-col items-center gap-2 mb-2 md:mb-4">
+					<p class="text-xl md:text-2xl text-center">
+						Run LLMs inside a PDF file.
+					</p>
+					<p class="opacity-50 text-center text-sm md:text-base">
+						Pre-built PDFs for download and usage
+					</p>
+				</div>
+
+				<!-- Models Section -->
+				<div id="models-container"></div>
+
+			</div>
+			<div class="flex flex-col items-center gap-3 mt-4">
+				<p class="text-center text-sm md:text-base">
+					Load custom models and learn more:
+				</p>
+				<div class="flex flex-row gap-6 items-center">
+					<a
+						href="https://github.com/evanzhoudev/llm.pdf"
+						class="flex flex-row items-center gap-1 text-sm md:text-base"
+					>
+						<i data-feather="github" class="w-4 h-4"></i>
+						<span>GitHub</span>
+					</a>
+					<a
+						href="https://www.youtube.com/watch?v=4cBom2lAx-g"
+						class="flex flex-row items-center gap-1 text-sm md:text-base"
+					>
+						<i data-feather="youtube" class="w-4 h-4"></i>
+						<span>Watch how it was built</span>
+					</a>
+				</div>
+			</div>
+		</div>
+		<script>
+			// Function to fetch models.txt and update the page dynamically
+			async function loadModels() {
+				try {
+					const response = await fetch('https://scratch2033alt.github.io/LLM.pdf-plus/models.txt');
+					const modelsData = await response.text();
+					const models = modelsData.split('\n'); // assuming each model is on a new line
+
+					const modelsContainer = document.getElementById('models-container');
+
+					models.forEach(modelLine => {
+						const [modelName, modelParam] = modelLine.split('-'); // Split name and param
+
+						// Create new model section for each model in models.txt
+						const modelDiv = document.createElement('div');
+						modelDiv.classList.add('flex', 'flex-col', 'gap-3', 'w-full', 'px-3');
+						modelDiv.innerHTML = `
+							<div class="flex flex-row justify-between items-center gap-2">
+								<div class="flex flex-row flex-wrap gap-2 h-min">
+									<p class="text-lg md:text-xl mr-1 md:mr-2">${modelName}</p>
+									<p class="bg-blue-100 text-blue-800 text-xs md:text-sm font-medium px-2 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center">
+										${modelParam}
+									</p>
+								</div>
+								<div class="flex flex-row gap-2">
+									<a class="flex flex-row gap-1 items-center justify-center outline-1 outline-gray-400 rounded-xl p-1 px-2" href="https://scratch2033alt.github.io/LLM.pdf-plus/${modelName.toLowerCase()}-${modelParam.toLowerCase()}.pdf" download="${modelName.toLowerCase()}:${modelParam.toLowerCase()}-llm.pdf">
+										<i data-feather="download" class="w-4"></i>
+									</a>
+									<a class="flex flex-row gap-1 items-center justify-center outline-1 outline-gray-400 rounded-xl p-1 px-2" href="https://scratch2033alt.github.io/LLM.pdf-plus/${modelName.toLowerCase()}-${modelParam.toLowerCase()}.pdf">
+										<i data-feather="file" class="w-4 mr-1"></i>
+										<span class="text-sm md:text-base">Open<span class="hidden md:inline"> PDF</span></span>
+									</a>
+								</div>
+							</div>
+							<div class="opacity-50 text-sm md:text-base">
+								LLM trained for ${modelName} model tasks.
+							</div>
+							<div class="w-full outline-[0.5px] outline-gray-200"></div>
+						`;
+
+						modelsContainer.appendChild(modelDiv);
+					});
+				} catch (error) {
+					console.error("Error loading models:", error);
+				}
+			}
+
+			// Load models when the page loads
+			document.addEventListener('DOMContentLoaded', loadModels);
+			feather.replace();
+		</script>
+	</body>
+</html>
